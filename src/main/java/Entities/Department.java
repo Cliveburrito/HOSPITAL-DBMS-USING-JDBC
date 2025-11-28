@@ -26,6 +26,9 @@ public class Department {
     }
 
     public void setName(String name) {
+        if(name == null || name.isBlank()) {
+            throw new IllegalArgumentException("Name cannot be empty.");
+        }
         this.name = name;
     }
 
@@ -34,6 +37,9 @@ public class Department {
     }
 
     public void setCapacity(Integer capacity) {
+        if(capacity < 0) {
+            throw new IllegalArgumentException("Capacity cannot be negative.");
+        }
         this.capacity = capacity;
     }
 

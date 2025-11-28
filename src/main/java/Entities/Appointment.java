@@ -32,6 +32,9 @@ public class Appointment {
     }
 
     public void setPatientID(int patientID) {
+        if(patientID <= 0) {
+            throw new IllegalArgumentException("ID must be >0");
+        }
         this.patientID = patientID;
     }
 
@@ -40,7 +43,10 @@ public class Appointment {
     }
 
     public void setDoctorID(int doctorID) {
-        this.doctorID = doctorID;
+        if(doctorID <= 0) {
+            throw new IllegalArgumentException("ID must be >0");
+        }
+        this.doctorID = patientID;
     }
 
     public LocalDateTime getAppointmentDate() {
@@ -48,8 +54,15 @@ public class Appointment {
     }
 
     public void setAppointmentDate(LocalDateTime appointmentDateTime) {
+        if (appointmentDateTime == null) {
+            throw new IllegalArgumentException("Choose appointment date!");
+        }
+        if (appointmentDateTime.isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Appointment date cannot be in the past.");
+        }
         this.appointmentDateTime = appointmentDateTime;
     }
+
 
     public String getReason() {
         return reason;
@@ -65,4 +78,5 @@ public class Appointment {
                 appointmentID, patientID, doctorID, appointmentDateTime, reason);
         return s;
     }
+
 }

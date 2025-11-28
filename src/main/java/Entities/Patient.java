@@ -24,7 +24,10 @@ public class Patient {
     }
 
     public void setFirstName(String firstName) {
-        this.firstName = firstName;
+        if (firstName == null || firstName.trim().isEmpty()) {
+            throw new IllegalArgumentException("First name cannot be empty.");
+        }
+        this.firstName = firstName.trim();
     }
 
     public String getLastName() {
@@ -32,7 +35,10 @@ public class Patient {
     }
 
     public void setLastName(String lastName) {
-        this.lastName = lastName;
+        if (lastName == null || lastName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Last name cannot be empty.");
+        }
+        this.lastName = lastName.trim();
     }
 
     public LocalDate getDateOfBirth() {
@@ -40,15 +46,27 @@ public class Patient {
     }
 
     public void setDateOfBirth(LocalDate dateOfBirth) {
+        if (dateOfBirth != null && dateOfBirth.isAfter(LocalDate.now())) {
+            throw new IllegalArgumentException("Date of birth cannot be in the future!" );
+        }
         this.dateOfBirth = dateOfBirth;
     }
+
 
     public String getGender() {
         return gender;
     }
 
     public void setGender(String gender) {
-        this.gender = gender;
+        if (gender != null) {
+            gender.toUpperCase();
+            if (!gender.equals("M") && !gender.equals("F") ) {
+                throw new IllegalArgumentException("Gender must be 'M' or 'F'.");
+            }
+            this.gender = gender;
+        } else {
+            this.gender = null;
+        }
     }
 
     public String getPhone() {
@@ -56,7 +74,14 @@ public class Patient {
     }
 
     public void setPhone(String phone) {
-        this.phone = phone;
+        if (phone != null) {
+            if (!phone.matches("\\d+")) {   // digits only
+                throw new IllegalArgumentException("Phone must contain digits only.");
+            }
+            this.phone = phone;
+        } else {
+            this.phone = null;
+        }
     }
 
     public String getAmka() {

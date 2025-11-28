@@ -5,8 +5,7 @@ public class Doctor {
     private String lastName;
     private String specialty;
     private String phone;
-    // Nullable FK → use Integer, not int
-    private Integer departmentId;
+    private Integer departmentId; //Boxed because it can be null!!!!
 
     public Doctor() {
     }
@@ -45,15 +44,22 @@ public class Doctor {
     }
 
     public void setFirstName(String firstName) {
-        this.firstName = firstName;
+        if (firstName == null || firstName.trim().isEmpty()) {
+            throw new IllegalArgumentException("First name cannot be empty.");
+        }
+        this.firstName = firstName.trim();
     }
+
 
     public String getLastName() {
         return lastName;
     }
 
     public void setLastName(String lastName) {
-        this.lastName = lastName;
+        if (lastName == null || lastName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Last name cannot be empty.");
+        }
+        this.lastName = lastName.trim();
     }
 
     public String getSpecialty() {
@@ -61,7 +67,10 @@ public class Doctor {
     }
 
     public void setSpecialty(String specialty) {
-        this.specialty = specialty;
+        if (specialty == null || specialty.trim().isEmpty()) {
+            throw new IllegalArgumentException("Specialty cannot be empty.");
+        }
+        this.specialty = specialty.trim();
     }
 
     public String getPhone() {
@@ -69,7 +78,14 @@ public class Doctor {
     }
 
     public void setPhone(String phone) {
-        this.phone = phone;
+        if (phone != null) {
+            if (!phone.matches("\\d+")) {   // digits only
+                throw new IllegalArgumentException("Phone must contain digits only.");
+            }
+            this.phone = phone;
+        } else {
+            this.phone = null;
+        }
     }
 
     public Integer getDepartmentId() {

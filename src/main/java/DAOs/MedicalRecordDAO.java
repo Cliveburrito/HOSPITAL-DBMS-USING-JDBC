@@ -1,15 +1,20 @@
+import Entities.MedicalRecord;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MedicalRecordDAO {
 
+    // ---------- INSERT ----------
     public MedicalRecord insertMedicalRecord(MedicalRecord mr, Connection connection) throws SQLException {
-        String sql = "INSERT INTO medical_record " +
-                "(patient_id, doctor_id, record_datetime, diagnosis, treatment, notes) " +
-                "VALUES (?, ?, ?, ?, ?, ?) RETURNING record_id";
+        String sql = """
+            INSERT INTO medical_record
+                (patient_id, doctor_id, diagnosis, treatment, notes)
+            VALUES (?, ?, ?, ?, ?)
+            """;
 
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, mr.getPatientId());
 
             if (mr.getDoctorId() != null) {
@@ -18,29 +23,24 @@ public class MedicalRecordDAO {
                 ps.setNull(2, Types.INTEGER);
             }
 
-            if (mr.getRecordDateTime() != null) {
-                ps.setTimestamp(3, Timestamp.valueOf(mr.getRecordDateTime()));
-            } else {
-                // let DB default NOW() if null
-                ps.setNull(3, Types.TIMESTAMP);
-            }
+            ps.setString(3, mr.getDiagnosis());
+            ps.setString(4, mr.getTreatment());
+            ps.setString(5, mr.getNotes());
 
-            ps.setString(4, mr.getDiagnosis());
-            ps.setString(5, mr.getTreatment());
-            ps.setString(6, mr.getNotes());
+            ps.executeUpdate();
 
-            try (ResultSet rs = ps.executeQuery()) {
+            try (ResultSet rs = ps.getGeneratedKeys()) {
                 if (rs.next()) {
                     int id = rs.getInt(1);
                     mr.setRecordId(id);
-                    return mr;
-                } else {
-                    throw new SQLException("Failed to insert medical record — no ID returned");
                 }
             }
         }
+        return mr;
     }
 
+
+    // ---------- FIND BY ID ----------
     public MedicalRecord findById(int id, Connection connection) throws SQLException {
         String sql = "SELECT * FROM medical_record WHERE record_id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -56,6 +56,7 @@ public class MedicalRecordDAO {
         }
     }
 
+    // ---------- FIND BY PATIENT ----------
     public List<MedicalRecord> findByPatientId(int patientId, Connection connection) throws SQLException {
         String sql = "SELECT * FROM medical_record WHERE patient_id = ? ORDER BY record_datetime DESC";
         List<MedicalRecord> list = new ArrayList<>();
@@ -73,7 +74,7 @@ public class MedicalRecordDAO {
     }
 
     public List<MedicalRecord> findAll(Connection connection) throws SQLException {
-        String sql = "SELECT * FROM medical_record";
+        String sql = "SELECT * FROM medical_record ORDER BY record_datetime DESC";
         List<MedicalRecord> list = new ArrayList<>();
 
         try (PreparedStatement ps = connection.prepareStatement(sql);
@@ -86,31 +87,17 @@ public class MedicalRecordDAO {
         return list;
     }
 
-    public int updateMedicalRecord(MedicalRecord mr, Connection connection) throws SQLException {
-        String sql = "UPDATE medical_record " +
-                "SET patient_id = ?, doctor_id = ?, record_datetime = ?, " +
-                "diagnosis = ?, treatment = ?, notes = ? " +
-                "WHERE record_id = ?";
+    public int updateMedicalRecordField(int recordId, String field, Object value, Connection connection) throws SQLException {
+        String sql = "UPDATE medical_record SET " + field + " = ? WHERE record_id = ?";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, mr.getPatientId());
-
-            if (mr.getDoctorId() != null) {
-                ps.setInt(2, mr.getDoctorId());
-            } else {
-                ps.setNull(2, Types.INTEGER);
-            }
-
-            ps.setTimestamp(3, Timestamp.valueOf(mr.getRecordDateTime()));
-            ps.setString(4, mr.getDiagnosis());
-            ps.setString(5, mr.getTreatment());
-            ps.setString(6, mr.getNotes());
-            ps.setInt(7, mr.getRecordId());
-
+            ps.setObject(1, value);
+            ps.setInt(2, recordId);
             return ps.executeUpdate();
         }
     }
 
+    // ---------- DELETE ----------
     public int deleteById(int id, Connection connection) throws SQLException {
         String sql = "DELETE FROM medical_record WHERE record_id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -119,7 +106,7 @@ public class MedicalRecordDAO {
         }
     }
 
-    // ===== Helper mapper =====
+    // ---------- Helper mapper ----------
     private MedicalRecord extractMedicalRecord(ResultSet rs) throws SQLException {
         MedicalRecord mr = new MedicalRecord();
         mr.setRecordId(rs.getInt("record_id"));

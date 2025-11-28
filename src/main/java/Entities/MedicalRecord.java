@@ -58,6 +58,12 @@ public class MedicalRecord {
     }
 
     public void setRecordDateTime(LocalDateTime recordDateTime) {
+        if(recordDateTime == null) {
+            throw new IllegalArgumentException("Please enter a date!");
+        }
+        if(recordDateTime.isAfter(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Date cannot be in the future");
+        }
         this.recordDateTime = recordDateTime;
     }
 
@@ -66,6 +72,9 @@ public class MedicalRecord {
     }
 
     public void setDiagnosis(String diagnosis) {
+        if(diagnosis == null || diagnosis.isBlank()) {
+            throw new IllegalArgumentException("Please enter a diagnosis");
+        }
         this.diagnosis = diagnosis;
     }
 
@@ -74,6 +83,9 @@ public class MedicalRecord {
     }
 
     public void setTreatment(String treatment) {
+        if(treatment == null || treatment.isBlank()) {
+            throw new IllegalArgumentException("Please enter a treatment");
+        }
         this.treatment = treatment;
     }
 

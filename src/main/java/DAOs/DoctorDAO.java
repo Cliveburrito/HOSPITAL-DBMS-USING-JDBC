@@ -1,11 +1,12 @@
+import Entities.Doctor;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class DoctorDAO {
 
-    /** INSERT doctor and return generated Doctor object */
+    /** INSERT doctor and return generated Entities.Doctor object */
     public Doctor insertDoctor(Doctor doctor, Connection connection) throws SQLException {
         String sql = """
                 INSERT INTO doctor(first_name, last_name, specialty, phone, department_id)
@@ -17,19 +18,13 @@ public class DoctorDAO {
             ps.setString(2, doctor.getLastName());
             ps.setString(3, doctor.getSpecialty());
             ps.setString(4, doctor.getPhone());
+            ps.setInt(5, doctor.getDepartmentId());
 
-            if (doctor.getDepartmentId() != null)
-                ps.setInt(5, doctor.getDepartmentId());
-            else
-                ps.setNull(5, Types.INTEGER);
-
-            ResultSet rs = ps.executeQuery();
+            ps.executeUpdate();
 
             try (ResultSet keys = ps.getGeneratedKeys()) {
                 if (keys.next()) {
                     doctor.setDoctorId(keys.getInt(1));
-                } else {
-                    throw new SQLException("Inserting doctor failed, no ID obtained.");
                 }
             }
         }
@@ -37,7 +32,7 @@ public class DoctorDAO {
     }
 
     /** FIND by ID */
-    public Optional<Doctor> findById(int doctorId, Connection connection) throws SQLException {
+    public Doctor findById(int doctorId, Connection connection) throws SQLException {
         String sql = "SELECT * FROM doctor WHERE doctor_id = ?";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -46,9 +41,19 @@ public class DoctorDAO {
 
             if (rs.next()) {
                 Doctor d = extractDoctor(rs);
-                return Optional.of(d);
+                return d;
             }
-            return Optional.empty();
+            return null;
+        }
+    }
+    public int numberOfDoctors(Connection connection) throws SQLException {
+        String sql = "Select Count(*) from doctor;";
+        try(PreparedStatement ps = connection.prepareStatement(sql)) {
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+            return 0;
         }
     }
 
@@ -67,34 +72,20 @@ public class DoctorDAO {
         return list;
     }
 
-    /** UPDATE doctor (entire object update) */
-    public int updateDoctor(Doctor doctor, Connection connection) throws SQLException {
-        String sql = """
-                UPDATE doctor SET
-                    first_name = ?,
-                    last_name = ?,
-                    specialty = ?,
-                    phone = ?,
-                    department_id = ?
-                WHERE doctor_id = ?
-                """;
+    /**
+     * Updates a single column of doctor by ID.
+     */
+    public int updateDoctorField(int doctorId, String field, Object value, Connection connection) throws SQLException {
+        String sql = "UPDATE doctor SET " + field + " = ? WHERE doctor_id = ?";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, doctor.getFirstName());
-            ps.setString(2, doctor.getLastName());
-            ps.setString(3, doctor.getSpecialty());
-            ps.setString(4, doctor.getPhone());
-
-            if (doctor.getDepartmentId() != null)
-                ps.setInt(5, doctor.getDepartmentId());
-            else
-                ps.setNull(5, Types.INTEGER);
-
-            ps.setInt(6, doctor.getDoctorId());
-
+            ps.setObject(1, value);
+            ps.setInt(2, doctorId);
             return ps.executeUpdate();
         }
     }
+
+
 
     /** DELETE doctor by ID, return rows affected */
     public int deleteById(int doctorId, Connection connection) throws SQLException {
@@ -105,8 +96,40 @@ public class DoctorDAO {
             return ps.executeUpdate();
         }
     }
+    public List<Doctor> findDoctorsByDepartmentName(String departmentName, Connection connection) throws SQLException {
+        List<Doctor> list = new ArrayList<>();
+        String sql = "Select * from doctor where department_id = (Select department_id from " +
+                "department where LOWER(name) = LOWER(?));";
 
-    /** Extract Doctor from ResultSet (private helper) */
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, departmentName);
+            ResultSet rs = ps.executeQuery();
+
+            while(rs.next()) {
+                Doctor d = extractDoctor(rs);
+                list.add(d);
+            }
+        }
+        return list;
+    }
+
+    public List<Doctor> findDoctorsByDepartmentId(int departmentID, Connection connection) throws SQLException {
+        List<Doctor> list = new ArrayList<>();
+        String sql = "Select * from doctor where deparment_id = ?;";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, departmentID);
+            ResultSet rs = ps.executeQuery();
+
+            while(rs.next()) {
+                Doctor d = extractDoctor(rs);
+                list.add(d);
+            }
+        }
+        return list;
+    }
+
+    /** Extract Entities.Doctor from ResultSet (private helper) */
     private Doctor extractDoctor(ResultSet rs) throws SQLException {
         Doctor d = new Doctor();
         d.setDoctorId(rs.getInt("doctor_id"));
