@@ -1,3 +1,5 @@
+package DAOs;
+
 import Entities.MedicalRecord;
 
 import java.sql.*;

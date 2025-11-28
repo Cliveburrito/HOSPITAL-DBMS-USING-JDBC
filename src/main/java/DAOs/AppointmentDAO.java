@@ -1,4 +1,7 @@
-import javax.xml.transform.Result;
+package DAOs;
+
+import Entities.*;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;

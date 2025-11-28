@@ -1,8 +1,13 @@
+import DAOs.AppointmentDAO;
+import DAOs.DoctorDAO;
+import DAOs.HospitalizationDAO;
+import DAOs.ReportsAnalyticsDAO;
+import Entities.AppointmentSummary;
+import Entities.Doctor;
+
 import java.sql.*;
-import java.time.LocalDate;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
@@ -34,7 +39,7 @@ public class Main {
                 }
 
                 /*PatientDAO pDao = new PatientDAO();
-                Patient p = new Patient();
+                Entities.Patient p = new Entities.Patient();
                 p.setAmka("121221");
                 p.setFirstName("HELLO");
                 p.setLastName("SS23");
@@ -44,46 +49,69 @@ public class Main {
                 p.setDateOfBirth(ld);
 
 
-                Patient patient = pDao.insertPatient(p, conn);
+                Entities.Patient patient = pDao.insertPatient(p, conn);
                 if(patient == null) {
                     System.out.println("FAILURE");
                 }
                 else {
-                    System.out.println("Patient : " + p.toString() + " insterted\nBRAVOOO");
+                    System.out.println("Entities.Patient : " + p.toString() + " insterted\nBRAVOOO");
                 }*/
 
-                PatientDAO pDao = new PatientDAO();
-                System.out.println("Please enter the id of the patient you would like to update -> ");
-                Scanner sc = new Scanner(System.in);
-                int id = sc.nextInt();
-                Patient p = pDao.findByID(id, conn);
-                if(p==null) {
-                    System.out.println("Invalid ID!");
-                }
-                else {
-                    System.out.println("Patient with ID:" + id + " "+ p.toString());
-                }
-                Map<String, Object> fields = new HashMap<>();
-                System.out.println("What data would you like to update:\n" +
-                        "1. First Name\n" +
-                                "2. Last Name\n" +
-                                "3. Date Of Birth\n" +
-                                "4. Gender\n" +
-                                "5. Phone\n" +
-                                "6. AMKA");
-                int option = sc.nextInt();
-                switch (option) {
-                    case 1 -> {
-                        System.out.println("Enter new first name: ");
-                        Scanner scanner = new Scanner(System.in);
-                        String s = scanner.nextLine();
-                        fields.put("first_name", s);
-                    }
+//                PatientDAO pDao = new PatientDAO();
+//                System.out.println("Please enter the id of the patient you would like to update -> ");
+//                Scanner sc = new Scanner(System.in);
+//                int id = sc.nextInt();
+//                Entities.Patient p = pDao.findByID(id, conn);
+//                if (p == null) {
+//                    System.out.println("Invalid ID!");
+//                } else {
+//                    System.out.println("Entities.Patient with ID:" + id + " " + p.toString());
+//                }
+//                Map<String, Object> fields = new HashMap<>();
+//                System.out.println("What data would you like to update:\n" +
+//                        "1. First Name\n" +
+//                        "2. Last Name\n" +
+//                        "3. Date Of Birth\n" +
+//                        "4. Gender\n" +
+//                        "5. Phone\n" +
+//                        "6. AMKA");
+//                int option = sc.nextInt();
+//                switch (option) {
+//                    case 1 -> {
+//                        System.out.println("Enter new first name: ");
+//                        Scanner scanner = new Scanner(System.in);
+//                        String s = scanner.nextLine();
+//                        fields.put("first_name", s);
+//                    }
+//
+//                }
+                AppointmentDAO appointmentDAO = new AppointmentDAO();
+                List<AppointmentSummary> appointmentSummaries = appointmentDAO.listByDoctor(1, conn);
+                for(AppointmentSummary aps : appointmentSummaries) {
 
+                    System.out.println(aps.toString());
                 }
+
+                appointmentSummaries = appointmentDAO.listByPatient(1, conn);
+                for(AppointmentSummary aps : appointmentSummaries) {
+
+                    System.out.println(aps.toString());
+                }
+                DoctorDAO dDAO = new DoctorDAO();
+                Doctor d = new Doctor("GIORGOS", "STEFANOS", "Pathology" , "6910111213", 5);
+
+                //d = dDAO.insertDoctor(d, conn);
+                HospitalizationDAO hDAO = new HospitalizationDAO();
+
+                var listss = hDAO.findAllCurrentSummaries(conn);
+                listss.forEach(System.out::println);
+                ReportsAnalyticsDAO reportsDAO= new ReportsAnalyticsDAO();
 
 
             }
+
+
+
         } catch (Exception e) {
             e.printStackTrace();
         }

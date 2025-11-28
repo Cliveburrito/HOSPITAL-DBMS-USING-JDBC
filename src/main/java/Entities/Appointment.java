@@ -1,4 +1,5 @@
-import java.time.LocalDate;
+package Entities;
+
 import java.time.LocalDateTime;
 
 public class Appointment {
@@ -58,7 +59,7 @@ public class Appointment {
             throw new IllegalArgumentException("Choose appointment date!");
         }
         if (appointmentDateTime.isBefore(LocalDateTime.now())) {
-            throw new IllegalArgumentException("Appointment date cannot be in the past.");
+            throw new IllegalArgumentException("Entities.Appointment date cannot be in the past.");
         }
         this.appointmentDateTime = appointmentDateTime;
     }

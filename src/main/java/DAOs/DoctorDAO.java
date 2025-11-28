@@ -1,3 +1,6 @@
+package DAOs;
+
+
 import Entities.Doctor;
 
 import java.sql.*;

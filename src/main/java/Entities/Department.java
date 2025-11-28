@@ -1,3 +1,5 @@
+package Entities;
+
 public class Department {
 
     private int departmentId;

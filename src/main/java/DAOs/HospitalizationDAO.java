@@ -1,6 +1,9 @@
+package DAOs;
+
 import Entities.CurrentHospitalizationSummary;
 import Entities.Department;
 import Entities.Patient;
+
 
 import java.sql.*;
 import java.util.ArrayList;

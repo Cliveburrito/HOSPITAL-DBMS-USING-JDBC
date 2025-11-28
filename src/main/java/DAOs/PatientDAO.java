@@ -1,3 +1,5 @@
+package DAOs;
+
 import Entities.Patient;
 
 import java.sql.*;
@@ -5,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PatientDAO {
-    public List<Patient> findALL(Connection connection) throws SQLException {
+    public List<Patient> findAll(Connection connection) throws SQLException {
         List<Patient> list = new ArrayList<>();
 
         String sql = "SELECT * FROM patient";
@@ -80,7 +82,7 @@ public class PatientDAO {
         }
     }
 
-    public Patient findById(int patientId, Connection connection) throws SQLException {
+    public Patient findByID(int patientId, Connection connection) throws SQLException {
         String sql = "SELECT * FROM patient WHERE patient_id = ?";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {

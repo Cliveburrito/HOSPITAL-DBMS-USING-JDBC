@@ -1,3 +1,5 @@
+package DAOs;
+
 import Entities.Department;
 import Entities.DepartmentSummary;
 
